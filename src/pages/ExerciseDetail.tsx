@@ -13,7 +13,8 @@ import NotFound from './NotFound';
 export default function ExerciseDetail() {
   const exerciseId = Number(useParams().id);
   const navigate = useNavigate();
-  const [editing, setEditing] = useState<{ name: string; type: ExerciseType } | null>(null);
+  const [editing, setEditing] = useState<{ name: string; type: ExerciseType; note: string } | null>(null);
+  const [noteOpen, setNoteOpen] = useState(false);
   const [error, setError] = useState('');
 
   const data = useLiveQuery(async () => {
@@ -40,7 +41,7 @@ export default function ExerciseDetail() {
   const save = async () => {
     if (!editing) return;
     try {
-      await updateExercise(exerciseId, editing.name, editing.type);
+      await updateExercise(exerciseId, editing.name, editing.type, editing.note);
       setEditing(null);
       setError('');
     } catch (e) {
@@ -62,14 +63,33 @@ export default function ExerciseDetail() {
           <div className="muted">{TYPE_LABELS[exercise.type]}</div>
         </div>
         {!editing && (
-          <button type="button" className="btn" onClick={() => setEditing({ name: exercise.name, type: exercise.type })}>
-            Modifier
-          </button>
+          <div className="row">
+            {exercise.note && (
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label={noteOpen ? 'Masquer les conseils' : "Voir les conseils d'exécution"}
+                aria-expanded={noteOpen}
+                onClick={() => setNoteOpen((v) => !v)}
+              >
+                📝
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setEditing({ name: exercise.name, type: exercise.type, note: exercise.note ?? '' })}
+            >
+              Modifier
+            </button>
+          </div>
         )}
       </header>
       <Link to="/exercices" className="back">
         ‹ Exercices
       </Link>
+
+      {!editing && exercise.note && noteOpen && <p className="card exercise-note">{exercise.note}</p>}
 
       {editing && (
         <div className="card stack">
@@ -83,6 +103,15 @@ export default function ExerciseDetail() {
               Les charges déjà enregistrées ne sont pas converties : elles seront lues selon le nouveau type.
             </p>
           )}
+          <label className="field">
+            Conseils d'exécution
+            <textarea
+              rows={3}
+              placeholder="Optionnel : placement, tempo, points de vigilance…"
+              value={editing.note}
+              onChange={(e) => setEditing({ ...editing, note: e.target.value })}
+            />
+          </label>
           {error && <div className="error">{error}</div>}
           <div className="row">
             <button type="button" className="btn" onClick={() => setEditing(null)}>

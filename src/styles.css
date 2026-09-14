@@ -419,6 +419,12 @@ textarea:focus {
   margin-top: 16px;
 }
 
+.exercise-note {
+  margin: 0 0 16px;
+  white-space: pre-line;
+  color: var(--text);
+}
+
 .compact-fields {
   margin-top: 10px;
 }

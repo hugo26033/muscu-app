@@ -11,6 +11,8 @@ export interface Exercise {
   id: number;
   name: string;
   type: ExerciseType;
+  /** Conseils d'exécution (placement, tempo, points de vigilance…), optionnel. */
+  note?: string;
 }
 
 export interface TemplateItem {
