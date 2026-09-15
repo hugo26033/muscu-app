@@ -1,4 +1,5 @@
-import { HashRouter, NavLink, Route, Routes } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router';
 import UpdatePrompt from './components/UpdatePrompt';
 import ExerciseDetail from './pages/ExerciseDetail';
 import Exercises from './pages/Exercises';
@@ -18,9 +19,69 @@ const TABS = [
   { to: '/reglages', label: 'Réglages', icon: '⚙️', end: false },
 ];
 
+function NavMenu() {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: PointerEvent) {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div className="nav-menu" ref={rootRef}>
+      <button
+        type="button"
+        className="nav-menu-button"
+        aria-label="Menu"
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="nav-menu-icon" aria-hidden>
+          <span />
+          <span />
+          <span />
+        </span>
+      </button>
+      {open && (
+        <nav className="nav-menu-dropdown">
+          {TABS.map((tab) => (
+            <NavLink key={tab.to} to={tab.to} end={tab.end} className="nav-menu-item">
+              <span className="tab-icon" aria-hidden>
+                {tab.icon}
+              </span>
+              {tab.label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <HashRouter>
+      <NavMenu />
       <main className="main">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -36,16 +97,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <nav className="tabbar">
-        {TABS.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} end={tab.end} className="tab">
-            <span className="tab-icon" aria-hidden>
-              {tab.icon}
-            </span>
-            {tab.label}
-          </NavLink>
-        ))}
-      </nav>
       <UpdatePrompt />
     </HashRouter>
   );
