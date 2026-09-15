@@ -11,6 +11,7 @@ export const MUSCLE_GROUPS = [
   'Dorsaux',
   'Pectoraux',
   'Quadriceps',
+  'Ischio',
   'Triceps',
   'Biceps',
   'Epaules',
