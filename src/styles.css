@@ -4,14 +4,15 @@
   --surface: #161a1f;
   --surface-2: #1f242b;
   --border: #2b313a;
-  --text: #e9ecef;
+  --text: #ffffff;
   --muted: #939ba6;
-  --accent: #ff7a1a;
-  --accent-text: #1a0d00;
+  --accent: #ffffff;
+  --accent-rgb: 255, 255, 255;
+  --accent-text: #0d0f12;
+  --warn: #f2c94c;
   --up: #3ecf8e;
   --down: #ff6161;
-  /* Orange plus sombre que l'accent : reste dans la bande de luminosité lisible sur fond sombre. */
-  --chart-series: #e8620f;
+  --chart-series: #ffffff;
   --chart-grid: #232830;
   --radius: 12px;
   --header-h: 56px;
@@ -171,7 +172,7 @@ h2 {
 }
 
 .warning {
-  color: var(--accent);
+  color: var(--warn);
 }
 
 .error,
@@ -202,15 +203,15 @@ h2 {
 }
 
 .banner-accent {
-  border-color: rgba(255, 122, 26, 0.5);
+  border-color: rgba(var(--accent-rgb), 0.5);
 }
 
 .notice {
   margin-bottom: 12px;
   padding: 10px 12px;
-  border: 1px solid rgba(255, 122, 26, 0.35);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
   border-radius: var(--radius);
-  background: rgba(255, 122, 26, 0.1);
+  background: rgba(var(--accent-rgb), 0.1);
 }
 
 .toast {
@@ -240,7 +241,7 @@ h2 {
 .badge {
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(255, 122, 26, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
   color: var(--accent);
   font-size: 12px;
   font-weight: 600;
@@ -487,7 +488,7 @@ textarea:focus {
 
 .segmented button.active {
   border-color: var(--accent);
-  background: rgba(255, 122, 26, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
   color: var(--accent);
   font-weight: 600;
 }
@@ -518,6 +519,119 @@ textarea:focus {
 
 .new-exercise {
   padding-top: 4px;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip.active {
+  font-weight: 600;
+}
+
+.chip-static {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}
+
+.muscle-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.muscle-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Calendrier / semaine */
+
+.period-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 8px 0 12px;
+}
+
+.period-label {
+  min-width: 150px;
+  text-align: center;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-cell {
+  min-height: 64px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.calendar-cell.out {
+  opacity: 0.35;
+}
+
+.calendar-cell.today {
+  border-color: var(--accent);
+}
+
+.calendar-day-number {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.calendar-session {
+  overflow: hidden;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Saisie de séance */
