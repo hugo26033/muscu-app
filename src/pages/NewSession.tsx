@@ -27,7 +27,7 @@ export default function NewSession() {
       <header className="page-header">
         <h1>Nouvelle séance</h1>
       </header>
-      <Link to="/" className="back">
+      <Link to="/seances" className="back">
         ‹ Séances
       </Link>
 

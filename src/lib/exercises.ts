@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Exercise, type ExerciseType } from '../db';
+import { db, type Exercise, type ExerciseType, type MuscleGroup } from '../db';
 import { ValidationError } from './errors';
 
 export function normalizeName(name: string) {
@@ -27,18 +27,24 @@ async function assertNameAvailable(name: string, exceptId?: number) {
   }
 }
 
-export async function createExercise(name: string, type: ExerciseType) {
+export async function createExercise(name: string, type: ExerciseType, muscleGroups: MuscleGroup[] = []) {
   const clean = normalizeName(name);
   if (!clean) throw new ValidationError("Le nom de l'exercice est obligatoire.");
   await assertNameAvailable(clean);
-  return db.exercises.add({ name: clean, type });
+  return db.exercises.add({ name: clean, type, muscleGroups });
 }
 
-export async function updateExercise(id: number, name: string, type: ExerciseType, note: string) {
+export async function updateExercise(
+  id: number,
+  name: string,
+  type: ExerciseType,
+  note: string,
+  muscleGroups: MuscleGroup[],
+) {
   const clean = normalizeName(name);
   if (!clean) throw new ValidationError("Le nom de l'exercice est obligatoire.");
   await assertNameAvailable(clean, id);
-  await db.exercises.update(id, { name: clean, type, note: normalizeNote(note) });
+  await db.exercises.update(id, { name: clean, type, note: normalizeNote(note), muscleGroups });
 }
 
 export function useExerciseMap() {

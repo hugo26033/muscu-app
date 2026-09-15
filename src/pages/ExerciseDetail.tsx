@@ -3,17 +3,24 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import ExerciseProgress from '../components/ExerciseProgress';
+import MuscleGroupPicker from '../components/MuscleGroupPicker';
 import TypeSelect from '../components/TypeSelect';
-import { db, type ExerciseType } from '../db';
+import { db, type ExerciseType, type MuscleGroup } from '../db';
 import { errorMessage } from '../lib/errors';
 import { updateExercise } from '../lib/exercises';
 import { formatDate, formatRest, formatSet, plural, TYPE_LABELS } from '../lib/format';
+import { MUSCLE_GROUP_COLORS } from '../lib/muscleColors';
 import NotFound from './NotFound';
 
 export default function ExerciseDetail() {
   const exerciseId = Number(useParams().id);
   const navigate = useNavigate();
-  const [editing, setEditing] = useState<{ name: string; type: ExerciseType; note: string } | null>(null);
+  const [editing, setEditing] = useState<{
+    name: string;
+    type: ExerciseType;
+    note: string;
+    muscleGroups: MuscleGroup[];
+  } | null>(null);
   const [noteOpen, setNoteOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,7 +48,7 @@ export default function ExerciseDetail() {
   const save = async () => {
     if (!editing) return;
     try {
-      await updateExercise(exerciseId, editing.name, editing.type, editing.note);
+      await updateExercise(exerciseId, editing.name, editing.type, editing.note, editing.muscleGroups);
       setEditing(null);
       setError('');
     } catch (e) {
@@ -78,7 +85,14 @@ export default function ExerciseDetail() {
             <button
               type="button"
               className="btn"
-              onClick={() => setEditing({ name: exercise.name, type: exercise.type, note: exercise.note ?? '' })}
+              onClick={() =>
+                setEditing({
+                  name: exercise.name,
+                  type: exercise.type,
+                  note: exercise.note ?? '',
+                  muscleGroups: exercise.muscleGroups ?? [],
+                })
+              }
             >
               Modifier
             </button>
@@ -88,6 +102,23 @@ export default function ExerciseDetail() {
       <Link to="/exercices" className="back">
         ‹ Exercices
       </Link>
+
+      {!editing && exercise.muscleGroups && exercise.muscleGroups.length > 0 && (
+        <div className="chip-group">
+          {exercise.muscleGroups.map((group) => {
+            const color = MUSCLE_GROUP_COLORS[group];
+            return (
+              <span
+                key={group}
+                className="chip chip-static"
+                style={{ borderColor: color, background: `${color}26`, color }}
+              >
+                {group}
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       {!editing && exercise.note && noteOpen && <p className="card exercise-note">{exercise.note}</p>}
 
@@ -103,6 +134,13 @@ export default function ExerciseDetail() {
               Les charges déjà enregistrées ne sont pas converties : elles seront lues selon le nouveau type.
             </p>
           )}
+          <label className="field">
+            Groupes musculaires
+            <MuscleGroupPicker
+              value={editing.muscleGroups}
+              onChange={(muscleGroups) => setEditing({ ...editing, muscleGroups })}
+            />
+          </label>
           <label className="field">
             Conseils d'exécution
             <textarea

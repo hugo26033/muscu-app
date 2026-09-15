@@ -1,9 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
-import { db, type ExerciseType } from '../db';
+import { db, type ExerciseType, type MuscleGroup } from '../db';
 import { errorMessage } from '../lib/errors';
 import { createExercise, foldName, normalizeName, sortByName } from '../lib/exercises';
 import { TYPE_LABELS } from '../lib/format';
+import MuscleGroupPicker from './MuscleGroupPicker';
 import TypeSelect from './TypeSelect';
 
 interface Props {
@@ -18,12 +19,14 @@ export default function ExercisePicker({ onPick, exclude = [], label = 'Ajouter 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [type, setType] = useState<ExerciseType>('weighted');
+  const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([]);
   const [error, setError] = useState('');
 
   const close = () => {
     setOpen(false);
     setQuery('');
     setType('weighted');
+    setMuscleGroups([]);
     setError('');
   };
 
@@ -48,7 +51,7 @@ export default function ExercisePicker({ onPick, exclude = [], label = 'Ajouter 
 
   const create = async () => {
     try {
-      pick(await createExercise(name, type));
+      pick(await createExercise(name, type, muscleGroups));
     } catch (e) {
       setError(errorMessage(e));
     }
@@ -81,6 +84,7 @@ export default function ExercisePicker({ onPick, exclude = [], label = 'Ajouter 
             Nouvel exercice : <strong>{name}</strong>
           </div>
           <TypeSelect value={type} onChange={setType} />
+          <MuscleGroupPicker value={muscleGroups} onChange={setMuscleGroups} />
           <button type="button" className="btn btn-primary" onClick={create}>
             Créer « {name} »
           </button>

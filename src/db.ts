@@ -7,12 +7,29 @@ import Dexie, { type EntityTable } from 'dexie';
  */
 export type ExerciseType = 'weighted' | 'dumbbell' | 'bodyweight';
 
+export const MUSCLE_GROUPS = [
+  'Dorsaux',
+  'Pectoraux',
+  'Quadriceps',
+  'Triceps',
+  'Biceps',
+  'Epaules',
+  'Fessiers',
+  'Adducteurs',
+  'Abs',
+  'Mollets',
+] as const;
+
+export type MuscleGroup = (typeof MUSCLE_GROUPS)[number];
+
 export interface Exercise {
   id: number;
   name: string;
   type: ExerciseType;
   /** Conseils d'exécution (placement, tempo, points de vigilance…), optionnel. */
   note?: string;
+  /** Groupes musculaires recrutés, optionnel (pas encore classé si absent/vide). */
+  muscleGroups?: MuscleGroup[];
 }
 
 export interface TemplateItem {

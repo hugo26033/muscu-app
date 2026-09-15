@@ -182,7 +182,8 @@ function SessionForm(props: FormProps) {
     setExercises((list) => [...list, draft]);
   };
 
-  const exit = () => navigate(props.sessionId !== undefined ? `/seance/${props.sessionId}` : '/', { replace: true });
+  const exit = () =>
+    navigate(props.sessionId !== undefined ? `/seance/${props.sessionId}` : '/seances', { replace: true });
 
   const cancel = () => {
     if (dirty && !confirm('Abandonner la saisie ? Les valeurs non enregistrées seront perdues.')) return;

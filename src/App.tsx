@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router';
 import UpdatePrompt from './components/UpdatePrompt';
+import Calendar from './pages/Calendar';
 import ExerciseDetail from './pages/ExerciseDetail';
 import Exercises from './pages/Exercises';
 import Home from './pages/Home';
+import Muscles from './pages/Muscles';
 import NewSession from './pages/NewSession';
 import NotFound from './pages/NotFound';
 import Program from './pages/Program';
@@ -13,8 +15,10 @@ import Settings from './pages/Settings';
 import TemplateEditor from './pages/TemplateEditor';
 
 const TABS = [
-  { to: '/', label: 'Séances', icon: '🏋️', end: true },
+  { to: '/', label: 'Calendrier', icon: '📅', end: true },
+  { to: '/seances', label: 'Séances', icon: '🏋️', end: false },
   { to: '/exercices', label: 'Exercices', icon: '📈', end: false },
+  { to: '/muscles', label: 'Muscles', icon: '💪', end: false },
   { to: '/programme', label: 'Programme', icon: '🗂️', end: false },
   { to: '/reglages', label: 'Réglages', icon: '⚙️', end: false },
 ];
@@ -84,7 +88,9 @@ export default function App() {
       <NavMenu />
       <main className="main">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Calendar />} />
+          <Route path="/seances" element={<Home />} />
+          <Route path="/muscles" element={<Muscles />} />
           <Route path="/seance/nouvelle" element={<NewSession />} />
           <Route path="/seance/nouvelle/:templateId" element={<NewSessionPage />} />
           <Route path="/seance/:id" element={<SessionDetail />} />

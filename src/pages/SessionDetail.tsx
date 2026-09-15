@@ -25,7 +25,7 @@ export default function SessionDetail() {
 
   const remove = async () => {
     if (!confirm('Supprimer définitivement cette séance ?')) return;
-    navigate('/', { replace: true });
+    navigate('/seances', { replace: true });
     await deleteSession(sessionId);
   };
 
@@ -37,7 +37,7 @@ export default function SessionDetail() {
           <div className="muted">{formatDate(session.date, { dateStyle: 'full' })}</div>
         </div>
       </header>
-      <Link to="/" className="back">
+      <Link to="/seances" className="back">
         ‹ Séances
       </Link>
 
