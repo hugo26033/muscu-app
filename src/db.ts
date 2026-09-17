@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
+import { buildSeedExercises } from './seedExercises';
 
 /**
  * - weighted : barre, machine, poulie — charge totale en kg
@@ -85,6 +86,12 @@ db.version(1).stores({
   templates: '++id, position',
   sessions: '++id, date, templateId',
   sessionExercises: '++id, sessionId, exerciseId, [exerciseId+date]',
+});
+
+// Ne s'exécute qu'à la toute première ouverture de la base (nouvelle installation) : n'affecte
+// jamais une base déjà utilisée. L'utilisateur peut ensuite renommer/supprimer chaque exercice.
+db.on('populate', () => {
+  db.exercises.bulkAdd(buildSeedExercises());
 });
 
 export function compareSessionsDesc(a: Session, b: Session) {
