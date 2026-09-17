@@ -1,6 +1,6 @@
 import { formatRest } from '../lib/format';
 
-const OPTIONS = [0, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240, 300, 360, 420, 480, 600];
+const OPTIONS = [0, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240, 300, 360, 420, 480, 540, 600, 660, 720];
 
 export default function RestSelect({
   value,
