@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { formatDate, formatNumber } from '../lib/format';
 
 export interface ChartPoint {
@@ -37,6 +37,7 @@ function niceTicks(min: number, max: number, count = 4) {
 
 /** Courbe d'une série dans le temps : repère vertical + bulle au survol, au toucher ou au clavier (← →). */
 export default function ProgressChart({ points, formatValue, ariaLabel }: Props) {
+  const gradId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [active, setActive] = useState<number | null>(null);
@@ -115,6 +116,10 @@ export default function ProgressChart({ points, formatValue, ariaLabel }: Props)
   };
 
   const line = xs.map((px, i) => `${i ? 'L' : 'M'}${px.toFixed(1)},${ys[i].toFixed(1)}`).join('');
+  const area =
+    points.length > 1
+      ? `${line} L${xs[lastIndex].toFixed(1)},${plotBottom.toFixed(1)} L${xs[0].toFixed(1)},${plotBottom.toFixed(1)} Z`
+      : '';
   const showAllDots = points.length <= MAX_DOTS;
   // Bulle du côté opposé au point pour ne pas le masquer.
   const tooltipTop = active !== null && ys[active] < MARGIN.top + plotHeight / 2 ? plotBottom - 52 : 0;
@@ -134,6 +139,13 @@ export default function ProgressChart({ points, formatValue, ariaLabel }: Props)
           onKeyDown={onKeyDown}
           onBlur={() => setActive(null)}
         >
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--chart-series)" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="var(--chart-series)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
           {ticks.map((tick, i) => (
             <g key={tick}>
               <line
@@ -158,6 +170,7 @@ export default function ProgressChart({ points, formatValue, ariaLabel }: Props)
             <line className="chart-crosshair" x1={xs[active]} x2={xs[active]} y1={MARGIN.top - 8} y2={plotBottom} />
           )}
 
+          {area && <path d={area} fill={`url(#${gradId})`} />}
           <path className="chart-line" d={line} />
 
           {xs.map((px, i) =>
