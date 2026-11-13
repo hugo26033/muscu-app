@@ -605,6 +605,60 @@ textarea:focus {
   flex-shrink: 0;
 }
 
+.muscle-toggle {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.muscle-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.muscle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.muscle-session {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.muscle-session-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.muscle-session-link:hover,
+.muscle-session-link:active {
+  background: var(--surface-2);
+}
+
+.muscle-exercise {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Calendrier / semaine */
 
 .period-nav {
