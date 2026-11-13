@@ -15,6 +15,7 @@ import {
   LOAD_LABELS,
   parseNumber,
   todayISO,
+  toInputNumber,
   TREND_ICONS,
   TYPE_LABELS,
 } from '../lib/format';
@@ -165,7 +166,7 @@ function SessionForm(props: FormProps) {
     }));
 
   const addSet = (key: string) =>
-    updateExercise(key, (ex) => ({ ...ex, sets: [...ex.sets, { ...(ex.sets.at(-1) ?? emptySet()) }] }));
+    updateExercise(key, (ex) => ({ ...ex, sets: [...ex.sets, emptySet()] }));
 
   const removeSet = (key: string, index: number) =>
     updateExercise(key, (ex) => ({ ...ex, sets: ex.sets.filter((_, i) => i !== index) }));
@@ -313,7 +314,7 @@ function SessionForm(props: FormProps) {
                         enterKeyHint="next"
                         aria-label={`Charge série ${i + 1}`}
                         value={set.load}
-                        placeholder={type === 'bodyweight' ? '0' : ''}
+                        placeholder={previous ? toInputNumber(previous.load) : type === 'bodyweight' ? '0' : ''}
                         onFocus={(e) => e.target.select()}
                         onChange={(e) => updateSet(exercise.key, i, 'load', e.target.value)}
                       />

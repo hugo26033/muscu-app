@@ -49,14 +49,13 @@ export async function draftExerciseFor(exerciseId: number, date: string, exclude
     key: newKey(),
     exerciseId,
     restSec: last?.restSec ?? 0,
-    sets: last?.sets.length ? toDraftSets(last.sets) : [emptySet()],
+    sets: Array.from({ length: Math.max(1, last?.sets.length ?? 0) }, emptySet),
   };
 }
 
 /**
- * Pré-remplit une séance à partir de la dernière séance du même modèle.
- * Un exercice absent de cette séance reprend sa dernière réalisation, quelle que soit la séance,
- * sinon les valeurs par défaut du modèle.
+ * Prépare une séance à partir de la dernière séance du même modèle (nombre de séries et récupération),
+ * avec des champs vides pour saisir les nouvelles performances (les précédentes restent affichées en repère).
  */
 export async function buildDraftFromTemplate(template: Template, date: string): Promise<DraftExercise[]> {
   const previous = (await db.sessions.where('templateId').equals(template.id).toArray())
@@ -69,14 +68,12 @@ export async function buildDraftFromTemplate(template: Template, date: string): 
       const source =
         previousEntries.find((e) => e.exerciseId === item.exerciseId) ??
         (await lastEntryForExercise(item.exerciseId, date));
-      if (source?.sets.length) {
-        return { key: newKey(), exerciseId: item.exerciseId, restSec: source.restSec, sets: toDraftSets(source.sets) };
-      }
+      const count = source?.sets.length ? source.sets.length : item.sets;
       return {
         key: newKey(),
         exerciseId: item.exerciseId,
-        restSec: item.restSec,
-        sets: Array.from({ length: Math.max(1, item.sets) }, emptySet),
+        restSec: source ? source.restSec : item.restSec,
+        sets: Array.from({ length: Math.max(1, count) }, emptySet),
       };
     }),
   );
