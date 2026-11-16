@@ -6,7 +6,7 @@ import { db, type TemplateItem } from '../db';
 import { errorMessage, ValidationError } from '../lib/errors';
 import { useExerciseMap } from '../lib/exercises';
 import { TYPE_LABELS } from '../lib/format';
-import { moveItem, newKey } from '../lib/list';
+import { moveItem, newKey, supersetState } from '../lib/list';
 import NotFound from './NotFound';
 
 interface ItemDraft {
@@ -14,6 +14,7 @@ interface ItemDraft {
   exerciseId: number;
   sets: string;
   restSec: number;
+  supersetWithNext?: boolean;
 }
 
 export default function TemplateEditor() {
@@ -52,13 +53,18 @@ export default function TemplateEditor() {
       const cleanName = name.trim();
       if (!cleanName) throw new ValidationError('Donne un nom à la séance type.');
       if (items.length === 0) throw new ValidationError('Ajoute au moins un exercice.');
-      const parsed: TemplateItem[] = items.map((item) => {
+      const parsed: TemplateItem[] = items.map((item, index) => {
         const sets = Number(item.sets);
         if (!Number.isInteger(sets) || sets < 1 || sets > 20) {
           const exerciseName = exercises?.get(item.exerciseId)?.name ?? 'un exercice';
           throw new ValidationError(`Nombre de séries invalide pour ${exerciseName} (entre 1 et 20).`);
         }
-        return { exerciseId: item.exerciseId, sets, restSec: item.restSec };
+        return {
+          exerciseId: item.exerciseId,
+          sets,
+          restSec: item.restSec,
+          ...(item.supersetWithNext && index < items.length - 1 ? { supersetWithNext: true } : {}),
+        };
       });
 
       if (templateId === undefined) {
@@ -97,14 +103,28 @@ export default function TemplateEditor() {
       <div className="stack">
         {items.map((item, index) => {
           const exercise = exercises?.get(item.exerciseId);
+          const superset = supersetState(items, index);
           return (
-            <section key={item.key} className="card">
+            <section key={item.key} className={`card ${superset.className}`}>
+              {superset.isFirst && <span className="badge superset-badge">Superset</span>}
               <div className="card-row">
                 <div>
                   <strong>{exercise?.name ?? '…'}</strong>
                   {exercise && <div className="muted small">{TYPE_LABELS[exercise.type]}</div>}
                 </div>
                 <div className="actions">
+                  {index < items.length - 1 && (
+                    <button
+                      type="button"
+                      className={`icon-btn ${superset.toNext ? 'active' : ''}`}
+                      aria-label="Lier en superset avec l'exercice suivant"
+                      aria-pressed={superset.toNext}
+                      title="Lier en superset avec le suivant"
+                      onClick={() => update(item.key, { supersetWithNext: !superset.toNext })}
+                    >
+                      🔗
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="icon-btn"

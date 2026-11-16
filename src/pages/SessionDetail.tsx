@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { db } from '../db';
 import { useExerciseMap } from '../lib/exercises';
 import { formatDate, formatRest, formatSet, plural } from '../lib/format';
+import { supersetState } from '../lib/list';
 import { deleteSession } from '../lib/sessions';
 import NotFound from './NotFound';
 
@@ -46,11 +47,13 @@ export default function SessionDetail() {
       </p>
 
       <ul className="list">
-        {entries.map((entry) => {
+        {entries.map((entry, index) => {
           const exercise = exercises?.get(entry.exerciseId);
           const type = exercise?.type ?? 'weighted';
+          const superset = supersetState(entries, index);
           return (
-            <li key={entry.id} className="card">
+            <li key={entry.id} className={`card ${superset.className}`}>
+              {superset.isFirst && <span className="badge superset-badge">Superset</span>}
               <div className="card-row">
                 <Link to={`/exercices/${entry.exerciseId}`}>
                   <strong className="big">{exercise?.name ?? '…'}</strong>

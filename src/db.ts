@@ -38,6 +38,7 @@ export interface TemplateItem {
   exerciseId: number;
   sets: number;
   restSec: number;
+  supersetWithNext?: boolean;
 }
 
 /** Séance type du programme (ex. « Push »). */
@@ -72,6 +73,7 @@ export interface SessionExercise {
   position: number;
   restSec: number;
   sets: SetEntry[];
+  supersetWithNext?: boolean;
 }
 
 export const db = new Dexie('muscu-app') as Dexie & {

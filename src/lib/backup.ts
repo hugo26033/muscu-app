@@ -1,6 +1,7 @@
 import { db, type Exercise, type Session, type SessionExercise, type Template } from '../db';
 import { ValidationError } from './errors';
 import { todayISO } from './format';
+import { loadMuscleTargets, sanitizeMuscleTargets, saveMuscleTargets, type MuscleTargets } from './muscleTargets';
 
 const FORMAT = 'muscu-app-backup';
 const LAST_BACKUP_KEY = 'muscu-app:lastBackupAt';
@@ -19,6 +20,7 @@ interface Backup {
   templates: Template[];
   sessions: Session[];
   sessionExercises: SessionExercise[];
+  muscleTargets?: MuscleTargets;
 }
 
 function readTimestamp(key: string): number | null {
@@ -55,6 +57,7 @@ export function shouldRemindBackup(sessionCount: number) {
 export type ExportResult = 'shared' | 'downloaded' | 'cancelled';
 
 export async function exportBackup(): Promise<ExportResult> {
+  const muscleTargets = loadMuscleTargets();
   const backup: Backup = {
     format: FORMAT,
     version: 1,
@@ -63,6 +66,7 @@ export async function exportBackup(): Promise<ExportResult> {
     templates: await db.templates.toArray(),
     sessions: await db.sessions.toArray(),
     sessionExercises: await db.sessionExercises.toArray(),
+    ...(Object.keys(muscleTargets).length ? { muscleTargets } : {}),
   };
   const file = new File([JSON.stringify(backup, null, 2)], `muscu-sauvegarde-${todayISO()}.json`, {
     type: 'application/json',
@@ -120,5 +124,8 @@ export async function importBackup(file: File) {
     await db.sessions.bulkAdd(backup.sessions);
     await db.sessionExercises.bulkAdd(backup.sessionExercises);
   });
+  if (backup.muscleTargets) {
+    saveMuscleTargets(sanitizeMuscleTargets(backup.muscleTargets));
+  }
   return { sessions: backup.sessions.length, exercises: backup.exercises.length };
 }

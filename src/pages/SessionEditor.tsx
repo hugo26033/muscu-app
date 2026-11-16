@@ -19,7 +19,7 @@ import {
   TREND_ICONS,
   TYPE_LABELS,
 } from '../lib/format';
-import { moveItem } from '../lib/list';
+import { moveItem, supersetState } from '../lib/list';
 import {
   buildDraftFromTemplate,
   draftExerciseFor,
@@ -230,14 +230,28 @@ function SessionForm(props: FormProps) {
           const info = exerciseMap?.get(exercise.exerciseId);
           const type = info?.type ?? 'weighted';
           const last = lastEntries?.get(exercise.exerciseId);
+          const superset = supersetState(exercises, index);
           return (
-            <section key={exercise.key} className="card exercise-card">
+            <section key={exercise.key} className={`card exercise-card ${superset.className}`}>
+              {superset.isFirst && <span className="badge superset-badge">Superset</span>}
               <div className="card-row">
                 <div>
                   <strong className="big">{info?.name ?? '…'}</strong>
                   <div className="muted small">{TYPE_LABELS[type]}</div>
                 </div>
                 <div className="actions">
+                  {index < exercises.length - 1 && (
+                    <button
+                      type="button"
+                      className={`icon-btn ${superset.toNext ? 'active' : ''}`}
+                      aria-label="Lier en superset avec l'exercice suivant"
+                      aria-pressed={superset.toNext}
+                      title="Lier en superset avec le suivant"
+                      onClick={() => updateExercise(exercise.key, (ex) => ({ ...ex, supersetWithNext: !superset.toNext }))}
+                    >
+                      🔗
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="icon-btn"

@@ -12,3 +12,11 @@ export function moveItem<T>(list: T[], index: number, direction: -1 | 1): T[] {
   [copy[index], copy[target]] = [copy[target], copy[index]];
   return copy;
 }
+
+export function supersetState<T extends { supersetWithNext?: boolean }>(items: T[], index: number) {
+  const fromPrev = index > 0 && Boolean(items[index - 1].supersetWithNext);
+  const toNext = index < items.length - 1 && Boolean(items[index].supersetWithNext);
+  const className =
+    fromPrev && toNext ? 'superset-mid' : toNext ? 'superset-head' : fromPrev ? 'superset-tail' : '';
+  return { isFirst: !fromPrev && toNext, toNext, className };
+}

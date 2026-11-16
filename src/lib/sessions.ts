@@ -16,6 +16,7 @@ export interface DraftExercise {
   exerciseId: number;
   restSec: number;
   sets: DraftSet[];
+  supersetWithNext?: boolean;
 }
 
 export interface SessionInput {
@@ -74,6 +75,7 @@ export async function buildDraftFromTemplate(template: Template, date: string): 
         exerciseId: item.exerciseId,
         restSec: source ? source.restSec : item.restSec,
         sets: Array.from({ length: Math.max(1, count) }, emptySet),
+        ...(item.supersetWithNext ? { supersetWithNext: true } : {}),
       };
     }),
   );
@@ -88,6 +90,7 @@ export async function draftFromSession(sessionId: number) {
     exerciseId: e.exerciseId,
     restSec: e.restSec,
     sets: toDraftSets(e.sets),
+    ...(e.supersetWithNext ? { supersetWithNext: true } : {}),
   }));
   return { session, exercises };
 }
@@ -96,8 +99,8 @@ type ParsedEntry = Omit<SessionExercise, 'id' | 'sessionId' | 'date'>;
 
 /** Convertit la saisie en données. Les séries entièrement vides sont ignorées, les exercices sans série aussi. */
 function parseDraft(exercises: DraftExercise[], nameOf: (exerciseId: number) => string): ParsedEntry[] {
-  const entries: ParsedEntry[] = [];
-  for (const exercise of exercises) {
+  const kept: { entry: ParsedEntry; wantedNext: boolean; origIndex: number }[] = [];
+  exercises.forEach((exercise, origIndex) => {
     const sets: SetEntry[] = [];
     exercise.sets.forEach((set, index) => {
       if (set.reps.trim() === '' && set.load.trim() === '') return;
@@ -111,10 +114,18 @@ function parseDraft(exercises: DraftExercise[], nameOf: (exerciseId: number) => 
       sets.push({ reps, load });
     });
     if (sets.length) {
-      entries.push({ exerciseId: exercise.exerciseId, position: entries.length, restSec: exercise.restSec, sets });
+      kept.push({
+        entry: { exerciseId: exercise.exerciseId, position: kept.length, restSec: exercise.restSec, sets },
+        wantedNext: Boolean(exercise.supersetWithNext),
+        origIndex,
+      });
     }
-  }
-  return entries;
+  });
+  return kept.map((item, i) => {
+    const next = kept[i + 1];
+    const linked = item.wantedNext && next !== undefined && next.origIndex === item.origIndex + 1;
+    return linked ? { ...item.entry, supersetWithNext: true } : item.entry;
+  });
 }
 
 export async function saveSession(input: SessionInput, nameOf: (exerciseId: number) => string) {
